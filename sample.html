@@ -1,0 +1,729 @@
+<style>
+	.contentWrapper {
+		background-color: #f7f7f7;
+	}
+	.pad-vert-1x { padding-top: 1em; padding-bottom: 1em; }
+	.flex-all { display: flex; }
+	.flex-between {
+		justify-content: space-between;
+	}
+	
+	.flex-center {
+		align-items: center;
+	}
+	
+	textarea {
+		width: 100%; border: 1px solid #ccc;
+	}
+	
+	table {
+		width: 100%; border-collapse: collapse; margin-top: 10px;
+	}
+	
+	th,
+	td {
+		padding: 5px; text-align: left;
+	}
+	
+	th {
+		background: #eee;
+	}
+	
+	.violation {
+		background: #fff;
+	}
+	
+	#preview {
+		border: 2px dotted #007bff; height: 600px; overflow-y: auto; background-color: #fff;
+	}
+	
+	#preview-wrapper {
+		width: 100%; display: none;
+	}
+	
+	.meta-info {
+		background: #fff; padding: 1em; border: 1px solid #ccc; border-bottom: 0;
+	}
+	
+	.meta-info p {
+		margin: 5px 0; font-weight: bold;
+	}
+	
+	.pageWrapper {
+		border: 1px solid #ccc;
+	}
+	
+	.table {
+		table-layout: auto; width: 100%; margin-top: 0px;
+	}
+	
+	.table th,
+	.table td {
+		word-wrap: break-word;
+	}
+	
+	.table tbody {
+		background-color: #fff;
+	}
+	
+	td:last-child {
+		white-space: nowrap;
+	}
+	
+	td:nth-child(2) {
+		color: unset !important; text-align: unset !important; text-transform: unset !important;
+	}
+	
+	th:last-child,
+	td:last-child {
+		text-align: center !important;
+	}
+	
+	.modal-header {
+		background-color: #eee; border-bottom: 1px solid #ddd;
+	}
+	
+	.modal-header .close {
+		font-size: 28px; opacity: 1;
+	}
+	
+	.modal-body .well {
+		padding: 10px;
+	}
+	
+	.modal-body #elementLocation,
+	.modal-body #elementSource {
+		color: #337ab7;
+	}
+	
+	#preview-arrow {
+		transition: transform 0.3s ease;
+	}
+	
+	#preview-arrow.up {
+		transform: rotate(180deg);
+	}
+	
+	#preview-header {
+		cursor: pointer;
+	}
+	
+	.resultNoIssue {
+		border: 2px solid #2f861e; background-color: #fff;
+	}
+	
+	#result .resultNoIssue i {
+		color: #2f861e;
+	}
+	
+	.resultNoCode {
+		border: 2px solid #ffbf08; background-color: #fff;
+	}
+	
+	#result .resultNoCode i {
+		color: #ffbf08;
+	}
+	
+	@media (min-width: 768px) {
+		th: first-child, th: last-child, td: first-child, td: last-child {
+			width: auto !important; font-size: unset !important;
+		}
+		th:last-child,
+		td:last-child {
+			font-size: unset !important;
+		}
+		th:first-child,
+		td:first-child {
+			width: 100px !important;
+		}
+		#websiteUrl {
+			min-width: 500px;
+		}
+	}
+	/* Website Scanner Styles */
+	
+	.form-control {
+		padding: 8px 12px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px;
+	}
+	
+	.fa-spin {
+		animation: fa-spin 2s infinite linear;
+	}
+	
+	@keyframes fa-spin {
+		0% {
+			transform: rotate(0deg);
+		}
+		100% {
+			transform: rotate(360deg);
+		}
+	}
+	/* Loading and error states */
+	
+	.loading {
+		text-align: center; padding: 40px; color: #666;
+	}
+	
+	.error-message {
+		background: #f8d7da; border: 1px solid #f5c6cb; border-radius: 6px; padding: 20px; margin: 20px 0; color: #721c24;
+	}
+	
+	.error-message h4 {
+		margin: 0 0 10px 0;
+	}
+	
+	.error-message p {
+		margin: 0;
+	}
+
+</style>
+
+<div class="content-description flex-all flex-between flex-center pad-vert-1x">
+
+	<h2 class="h3 flex-all flex-center">
+		<img src="data:image/svg+xml;base64,PHN2ZyBmaWxsPSJyZ2IoNjAsIDEyMiwgMTc0KSIgdmVyc2lvbj0iMS4yIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiBvdmVyZmxvdz0idmlzaWJsZSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSIgdmlld0JveD0iMCAwIDU4MC40MDAwMjQ0MTQwNjI1IDU0My43OTk5ODc3OTI5Njg4IiB4bWw6c3BhY2U9InByZXNlcnZlIiB5PSIwcHgiIHg9IjBweCIgaWQ9IkxheWVyXzFfMTU4OTIwOTE2MDY5OCIgd2lkdGg9IjU0IiBoZWlnaHQ9IjQ5Ij48ZyB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxLCAxKSI+PGc+Cgk8cGF0aCBkPSJNNTQ2LjQsNDM4LjZjLTI3LjItMTIuMS01OS4xLDAuMi03MS4yLDI3LjNjLTAuNSwxLTAuOCwyLjEtMS4yLDMuMkg2NUwyOTIuNiw3NC44bDE3MC4xLDI5Mi44bDMyLjQtMTguOCAgIEwyOTIuNSwwTDAsNTA2LjZoNDc0YzQuOSwxMy4xLDE0LjgsMjQuNCwyOC42LDMwLjVjNy4xLDMuMiwxNC41LDQuNywyMS44LDQuN2MyMC43LDAsNDAuNC0xMS45LDQ5LjMtMzIgICBDNTg1LjgsNDgyLjcsNTczLjYsNDUwLjcsNTQ2LjQsNDM4LjZ6IE01NDgsNDk4LjRjLTUuOCwxMy0yMS4xLDE4LjktMzQsMTMuMWMtMTMtNS44LTE4LjktMjEuMS0xMy4xLTM0ICAgYzQuMy05LjYsMTMuNy0xNS4zLDIzLjYtMTUuM2MzLjUsMCw3LjEsMC43LDEwLjQsMi4yQzU0OCw0NzAuMSw1NTMuOCw0ODUuNCw1NDgsNDk4LjR6IiBjbGFzcz0ic3QwXzE1ODkyMDkxNjA2OTgiIHZlY3Rvci1lZmZlY3Q9Im5vbi1zY2FsaW5nLXN0cm9rZSIvPgoJPGc+CgkJPGc+CgkJCTxwYXRoIGQ9Ik0yODQsNDMyLjloLTI3LjZ2LTE2LjdjLTcuNCwxMy41LTIyLjgsMjAuMi0zOSwyMC4yYy0zNy4xLDAtNTguOS0yOC45LTU4LjktNjEuNiAgICAgYzAtMzYuNSwyNi40LTYxLjQsNTguOS02MS40YzIxLjEsMCwzNCwxMS4yLDM5LDIwLjVWMzE3SDI4NFY0MzIuOXogTTE4Ni4yLDM3NS41YzAsMTQuMywxMC4zLDM1LjIsMzUuMiwzNS4yICAgICBjMTUuNCwwLDI1LjUtOCwzMC44LTE4LjZjMi43LTUuMSw0LTEwLjUsNC40LTE2LjJjMC4yLTUuNS0wLjgtMTEuMi0zLjItMTYuMmMtNC45LTExLTE1LjYtMjAuNS0zMi4zLTIwLjUgICAgIGMtMjIuNCwwLTM1LDE4LjEtMzUsMzYuMXYwLjJIMTg2LjJ6IiBjbGFzcz0ic3QwXzE1ODkyMDkxNjA2OTgiIHZlY3Rvci1lZmZlY3Q9Im5vbi1zY2FsaW5nLXN0cm9rZSIvPgoJCQk8cGF0aCBkPSJNMzQxLjIsMzcxLjlsLTM5LTU0LjhoMzMuM2wyMi42LDM1LjZsMjIuNi0zNS42aDMyLjlsLTM4LjgsNTQuOGw0My4yLDYxaC0zNEwzNTguMSwzOTNsLTI2LjIsMzkuOWgtMzMuNSAgICAgTDM0MS4yLDM3MS45eiIgY2xhc3M9InN0MF8xNTg5MjA5MTYwNjk4IiB2ZWN0b3ItZWZmZWN0PSJub24tc2NhbGluZy1zdHJva2UiLz4KCQk8L2c+Cgk8L2c+CjwvZz48L2c+PC9zdmc+Cg==" alt=""> axe-core
+	</h2>
+	<div id="metaInfo"></div>
+</div>
+
+<div class="meta-info flex-all flex-between flex-center" style="margin-top: 10px;">
+	<div class="flex-all flex-center">
+		<label class="margin-right-1x" for="websiteUrl"><strong>URL:</strong></label>
+		<input type="url" id="websiteUrl" placeholder="https://onboard.dealeron.com/" value="https://onboard.dealeron.com/" class="form-control">
+	</div>
+	<button class="btn btn-primary" id="scanWebsiteBtn">
+		<i class="fa fa-globe" aria-hidden="true"></i> Scan Website
+	</button>
+</div>
+
+<div class="pageWrapper">
+	<div class="alert alert-info margin-bottom-x">
+
+		<h4>Before Using This Tool</h4>
+
+		<p>You need to install the <strong>CORS Unblock</strong> browser extension to use this tool.</p>
+
+		<p><a class="btn btn-info" href="https://chrome.google.com/webstore/detail/cors-unblock/lfhmikememgdcahcdlaciloancbhjino" target="_blank">Install from Chrome Web Store</a></p>
+
+		<p>After installation, please refresh this page and try again.</p>
+	</div>
+	<div id="result"></div>
+</div>
+
+<!-- Modal -->
+<div aria-labelledby="fixTitleLabel" class="modal fade" id="fixModal" role="dialog" tabindex="-1">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button aria-label="Close" class="close" data-dismiss="modal" type="button">
+					<span aria-hidden="true">×</span>
+				</button>
+
+				<h4 class="modal-title" id="fixTitle"><strong>How to Fix</strong></h4>
+			</div>
+			<div class="modal-body">
+
+				<p class="h4">Issue Description:</p>
+
+				<p id="fixDescription"></p>
+				<a class="margin-bottom-1x" href="#" id="fixLink" target="_blank">more information <i class="fa fa-external-link" aria-hidden="true"></i></a>
+
+				<p class="h4">Element Location:</p>
+
+				<p class="well" id="elementLocation"></p>
+
+				<p class="h4">Element Source Code:</p>
+				<pre class="well" id="elementSource" style="overflow:auto;"><code></code></pre>
+
+				<p class="h4">To solve this issue, you need to...</p>
+
+				<p class="well" id="fixFailure"></p>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- axe-core -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axe-core/4.10.3/axe.min.js"></script>
+<script>
+	(async() =>
+	{
+		const metaDiv = document.getElementById('metaInfo');
+		const axeVersion = (typeof axe !== 'undefined' && axe.version) ? axe.version : 'Unknown';
+		let wcagVersion = 'Unknown';
+		let conformance = 'Unknown';
+
+		if (axe._audit && axe._audit.rules)
+		{
+			const has22 = Object.keys(axe._audit.rules).some(r => axe._audit.rules[r].tags && (axe._audit.rules[r].tags.includes('wcag22a') || axe._audit.rules[r].tags.includes('wcag22aa')));
+			const has21 = Object.keys(axe._audit.rules).some(r => axe._audit.rules[r].tags && (axe._audit.rules[r].tags.includes('wcag21a') || axe._audit.rules[r].tags.includes('wcag21aa')));
+			if (has22) wcagVersion = 'WCAG 2.2';
+			else if (has21) wcagVersion = 'WCAG 2.1';
+			else wcagVersion = 'WCAG 2.0';
+		}
+
+		if (axe._audit && axe._audit.rules)
+		{
+			const hasAAA = Object.keys(axe._audit.rules).some(r => axe._audit.rules[r].tags && axe._audit.rules[r].tags.includes('wcag2aaa'));
+			conformance = hasAAA ? 'AAA' : 'AA';
+		}
+
+		metaDiv.innerHTML = `
+    <p class="label label-default"><strong>axe-core Version:</strong> ${axeVersion}</p>
+    <p class="label label-default"><strong>WCAG Version:</strong> ${wcagVersion}</p>
+    <p class="label label-default"><strong>Conformance Level:</strong> ${conformance}</p>
+  `;
+	})();
+
+	let modalData = []; // Store data for modal
+
+	// Wait for DOM to be fully loaded
+	document.addEventListener('DOMContentLoaded', function()
+	{
+		console.log('DOM loaded, initializing scanner...');
+
+		// Website Scanner Event Listeners
+		const scanBtn = document.getElementById('scanWebsiteBtn');
+		if (scanBtn)
+		{
+			console.log('Scan button found, adding event listener...');
+
+			scanBtn.addEventListener('click', function()
+			{
+				console.log('=== BUTTON CLICKED ===');
+				const url = document.getElementById('websiteUrl').value;
+				console.log('URL:', url);
+
+				if (!url)
+				{
+					alert('Please enter a website URL');
+					return;
+				}
+
+				document.getElementById('result').innerHTML = '<div>Scanning: ' + url + '</div>';
+
+				fetch(url)
+					.then(response =>
+					{
+						console.log('Fetch response:', response.status);
+
+						// Check for 404 or other error status codes
+						if (response.status === 404)
+						{
+							throw new Error('Page not found (404). The requested page does not exist.');
+						}
+						else if (response.status >= 400)
+						{
+							throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+						}
+
+						return response.text();
+					})
+					.then(html =>
+					{
+						console.log('HTML length:', html.length);
+
+						// Create temporary container for axe scan
+						const tempContainer = document.createElement('div');
+						tempContainer.style.position = 'absolute';
+						tempContainer.style.left = '-99999px';
+						tempContainer.style.top = '-99999px';
+						tempContainer.style.width = '1200px';
+						tempContainer.style.height = '800px';
+						tempContainer.style.backgroundColor = 'white';
+						tempContainer.style.padding = '20px';
+						tempContainer.style.display = 'block';
+						tempContainer.style.visibility = 'visible';
+						tempContainer.style.opacity = '1';
+						tempContainer.innerHTML = html;
+						document.body.appendChild(tempContainer);
+
+						// Run axe scan
+						console.log('Running axe scan...');
+						axe.run(tempContainer)
+							.then(results =>
+							{
+								console.log('Axe scan completed!');
+								console.log('Violations found:', results.violations.length);
+
+								// Clean up
+								document.body.removeChild(tempContainer);
+
+								// Display results
+								let resultHtml = '<div class="pad-1x">';
+
+								// Summary section
+								if (results.violations.length > 0)
+								{
+									resultHtml += '<div class="alert alert-warning" style="border: 2px solid #ffc107; background-color: #fff; padding: 20px; margin: 20px 0;">';
+									resultHtml += '<div style="text-align: center;">';
+									resultHtml += '<i class="fa fa-exclamation-triangle" style="color: #ffc107; font-size: 24px; margin-bottom: 10px;"></i>';
+									resultHtml += '<h3 style="margin: 10px 0; color: #333;">Found ' + results.violations.length + ' accessibility issue(s)</h3>';
+									resultHtml += '<p style="margin: 5px 0; color: #666;">Website: ' + url + '</p>';
+									resultHtml += '<p style="margin: 5px 0; color: #666;">Scanned on: ' + new Date().toLocaleString() + '</p>';
+									resultHtml += '</div>';
+									resultHtml += '</div>';
+								}
+
+								resultHtml += '<h3>Results</h3>';
+
+								if (results.violations.length > 0)
+								{
+									// Sort violations by impact level
+									const impactOrder = {
+										'critical': 1,
+										'serious': 2,
+										'moderate': 3,
+										'minor': 4
+									};
+									results.violations.sort((a, b) =>
+									{
+										const aOrder = impactOrder[a.impact] || 5;
+										const bOrder = impactOrder[b.impact] || 5;
+										return aOrder - bOrder;
+									});
+
+									resultHtml += '<div class="table-responsive">';
+									resultHtml += '<table class="table table-bordered">';
+									resultHtml += '<thead><tr><th>Impact</th><th>Issue</th><th>Selector</th><th>Actions</th></tr></thead><tbody>';
+
+									results.violations.forEach(violation =>
+									{
+										violation.nodes.forEach(node =>
+										{
+											// Get impact icon
+											let impactIcon = '';
+											switch (violation.impact)
+											{
+												case 'critical':
+													impactIcon = '<i class="fa fa-ban text-danger" title="Critical"></i>';
+													break;
+												case 'serious':
+													impactIcon = '<i class="fa fa-exclamation-triangle text-warning" title="Serious"></i>';
+													break;
+												case 'moderate':
+													impactIcon = '<i class="fa fa-check-circle text-info" title="Moderate"></i>';
+													break;
+												case 'minor':
+													impactIcon = '<i class="fa fa-info-circle text-muted" title="Minor"></i>';
+													break;
+												default:
+													impactIcon = '<i class="fa fa-question-circle text-muted" title="Unknown"></i>';
+											}
+
+											resultHtml += '<tr>';
+											resultHtml += '<td>' + impactIcon + ' ' + violation.impact + '</td>';
+											resultHtml += '<td>' + violation.description + '</td>';
+											resultHtml += '<td>' + (node.target ? node.target.join(', ') : 'Unknown element') + '</td>';
+											resultHtml += '<td><i class="fa fa-eye violation-detail btn-danger pad-1x" aria-hidden="true" data-violation-id="' + encodeURIComponent(violation.id) + '" data-description="' + encodeURIComponent(violation.description) + '" data-selector="' + encodeURIComponent(node.target ? node.target.join(', ') : 'Unknown element') + '" data-help="' + encodeURIComponent(violation.help || '') + '" data-help-url="' + encodeURIComponent(violation.helpUrl || '') + '" data-failure-summary="' + encodeURIComponent(node.failureSummary || '') + '" style="cursor: pointer;"></i></td>';
+											resultHtml += '</tr>';
+										});
+									});
+
+									resultHtml += '</tbody></table>';
+									resultHtml += '</div>';
+								}
+								else
+								{
+									resultHtml += '<div class="alert alert-success">No accessibility violations found!</div>';
+								}
+
+								resultHtml += '</div>';
+								document.getElementById('result').innerHTML = resultHtml;
+
+								// Add event listeners to violation detail icons
+								document.querySelectorAll('.violation-detail').forEach(icon =>
+								{
+									icon.addEventListener('click', function()
+									{
+										const id = decodeURIComponent(this.getAttribute('data-violation-id'));
+										const description = decodeURIComponent(this.getAttribute('data-description'));
+										const selector = decodeURIComponent(this.getAttribute('data-selector'));
+										const help = decodeURIComponent(this.getAttribute('data-help'));
+										const helpUrl = decodeURIComponent(this.getAttribute('data-help-url'));
+										const failureSummary = decodeURIComponent(this.getAttribute('data-failure-summary'));
+
+										console.log('Modal data:',
+										{
+											id, description, selector, help, helpUrl, failureSummary
+										});
+
+										// Try to find the element using the CSS selector in tempContainer
+										let elementSource = 'Element source not available';
+										try
+										{
+											const element = tempContainer.querySelector(selector);
+											if (element)
+											{
+												elementSource = element.outerHTML;
+												if (elementSource.length > 200)
+												{
+													elementSource = elementSource.substring(0, 200) + '...';
+												}
+											}
+										}
+										catch (error)
+										{
+											console.log('Error finding element:', error);
+										}
+
+										document.getElementById('fixTitle').textContent = help;
+										document.getElementById('fixDescription').textContent = description;
+										document.getElementById('fixFailure').textContent = failureSummary || 'No specific instructions available. Please refer to the help link above for detailed guidance.';
+										document.getElementById('fixLink').href = helpUrl;
+										document.getElementById('elementLocation').textContent = selector;
+										document.getElementById('elementSource').querySelector('code').textContent = elementSource;
+										$('#fixModal').modal('show');
+									});
+								});
+							})
+							.catch(error =>
+							{
+								console.error('Axe scan error:', error);
+								document.getElementById('result').innerHTML = '<div>Error during axe scan: ' + error.message + '</div>';
+								document.body.removeChild(tempContainer);
+							});
+					})
+					.catch(error =>
+					{
+						console.error('Fetch error:', error);
+						document.getElementById('result').innerHTML = '<div>Error: ' + error.message + '</div>';
+					});
+			});
+
+			console.log('Event listener added successfully!');
+		}
+		else
+		{
+			console.error('Scan button not found!');
+		}
+	});
+
+	// Show violation details in modal
+	window.showViolationDetails = function(id, description, selector, help, helpUrl, failureSummary)
+	{
+		document.getElementById('fixTitle').textContent = 'How to Fix: ' + id;
+		document.getElementById('fixDescription').textContent = description;
+		document.getElementById('elementLocation').textContent = selector;
+		document.getElementById('elementSource').textContent = selector;
+
+		// Use failureSummary or help from axe results
+		let fixText = failureSummary || help || 'No specific guidance available for this issue.';
+
+		document.getElementById('fixFailure').textContent = fixText;
+		document.getElementById('fixLink').href = helpUrl || '#';
+
+		$('#fixModal').modal('show');
+	};
+
+	// Display scan results
+	function displayResults(results, url)
+	{
+		const resultDiv = document.getElementById('result');
+		const violations = results.violations || [];
+
+		if (violations.length === 0)
+		{
+			resultDiv.innerHTML = `
+      <div class="resultNoIssue text-center margin-top-2x pad-2x">
+        <i class="fa fa-check-circle fa-4x" aria-hidden="true"></i>
+        <p class="larger margin-top">No accessibility issues found!</p>
+        <p><strong>Website:</strong> ${url}</p>
+        <p><strong>Scanned on:</strong> ${new Date().toLocaleString()}</p>
+      </div>
+    `;
+		}
+		else
+		{
+			// Sort by impact level
+			const impactOrder = ['critical', 'serious', 'moderate', 'minor'];
+			violations.sort((a, b) =>
+			{
+				const aIndex = impactOrder.indexOf(a.impact || '');
+				const bIndex = impactOrder.indexOf(b.impact || '');
+				return (aIndex === -1 ? 999 : aIndex) - (bIndex === -1 ? 999 : bIndex);
+			});
+
+			modalData = [];
+
+			let html = `
+      <div class="resultNoCode text-center pad-2x">
+        <i class="fa fa-exclamation-triangle fa-4x" aria-hidden="true"></i>
+        <h3>Found ${violations.length} accessibility issue(s)</h3>
+        <p><strong>Website:</strong> ${url}</p>
+        <p><strong>Scanned on:</strong> ${new Date().toLocaleString()}</p>
+      </div>
+      <h3>Results</h3>
+      <div class="table-responsive">
+      <table class="table table-bordered">
+        <tr>
+          <th>Impact</th>
+          <th>Issue</th>
+          <th>Selector</th>
+          <th>Actions</th>
+        </tr>
+    `;
+
+			violations.forEach((v) =>
+			{
+				let icon = '';
+				switch (v.impact)
+				{
+					case 'critical':
+						icon = '<i class="fa fa-exclamation-triangle text-danger" title="Critical"></i>';
+						break;
+					case 'serious':
+						icon = '<i class="fa fa-flag text-warning" title="Serious"></i>';
+						break;
+					case 'moderate':
+						icon = '<i class="fa fa-check-circle text-info" title="Moderate"></i>';
+						break;
+					case 'minor':
+						icon = '<i class="fa fa-info-circle text-muted" title="Minor"></i>';
+						break;
+					default:
+						icon = '<i class="fa fa-info-circle" title="Unknown"></i>';
+				}
+
+				v.nodes.forEach((node) =>
+				{
+					const target = node.target ? node.target.join(', ') : 'Unknown element';
+
+					// Debug: log the node object to see what's available
+					console.log('Node object:', node);
+					console.log('Node HTML:', node.html);
+					console.log('Node target:', node.target);
+					console.log('TempContainer:', tempContainer);
+
+					// Get actual HTML element source code by finding the element in tempContainer
+					let elementSource = 'Element source not available';
+					if (node.target && node.target.length > 0)
+					{
+						try
+						{
+							// Try to find the element using the CSS selector in tempContainer
+							const selector = node.target[0];
+							console.log('Looking for selector:', selector);
+							const element = tempContainer.querySelector(selector);
+							console.log('Found element:', element);
+							if (element)
+							{
+								// Get the outerHTML of the element
+								elementSource = element.outerHTML;
+								console.log('Element outerHTML:', elementSource);
+									// If it's too long, truncate it
+								if (elementSource.length > 200)
+								{
+									elementSource = elementSource.substring(0, 200) + '...';
+								}
+							}
+							else
+							{
+								console.log('Element not found with selector:', selector);
+							}
+						}
+						catch (error)
+						{
+							console.log('Error finding element:', error);
+								// Fallback to node.html if available
+							if (node.html)
+							{
+								elementSource = node.html.substring(0, 100) + (node.html.length > 100 ? '...' : '');
+							}
+						}
+					}
+					else if (node.html)
+					{
+						// Fallback to node.html if no target
+						elementSource = node.html.substring(0, 100) + (node.html.length > 100 ? '...' : '');
+					}
+
+					console.log('Final elementSource:', elementSource);
+
+					modalData.push(
+					{
+						title: v.help,
+						description: v.description,
+						failure: node.failureSummary || '—',
+						link: v.helpUrl,
+						location: target,
+						source: elementSource
+					});
+
+					html += `
+          <tr class="violation">
+            <td>${icon} ${v.impact}</td>
+            <td>${v.help}</td>
+            <td>${target}</td>
+            <td>
+              <button class="btn btn-sm btn-cta openModalBtn" type="button">
+                <i class="fa fa-eye" aria-hidden="true"></i>
+              </button>
+            </td>
+          </tr>`;
+				});
+			});
+
+			html += '</table>';
+			html += '</div>';
+			resultDiv.innerHTML = html;
+			resultDiv.className = 'pad-1x';
+			resultDiv.style.border = 'none';
+
+			// Modal button click event
+			document.querySelectorAll('.openModalBtn').forEach((btn, index) =>
+			{
+				btn.addEventListener('click', function()
+				{
+					const data = modalData[index];
+					document.getElementById('fixTitle').textContent = data.title;
+					document.getElementById('fixDescription').textContent = data.description;
+					document.getElementById('fixFailure').textContent = data.failure;
+					document.getElementById('fixLink').href = data.link;
+					document.getElementById('elementLocation').textContent = data.location;
+					document.getElementById('elementSource').querySelector('code').textContent = data.source;
+					document.getElementById('fixModal').style.display = 'block';
+				});
+			});
+		}
+	}
+
+	// Show error message
+	function showError(message)
+	{
+		const resultDiv = document.getElementById('result');
+		resultDiv.innerHTML = `
+    <div class="error-message">
+      <h4><i class="fa fa-exclamation-triangle"></i> Error</h4>
+      <p>${message}</p>
+    </div>
+  `;
+	}
+
+	// Show CORS extension guide
+	function showCorsExtensionGuide()
+	{
+		const resultDiv = document.getElementById('result');
+		resultDiv.innerHTML = `
+    <div class="extension-guide">
+      <h3>?? CORS Extension Required</h3>
+      <p>To scan websites, you need to install the <strong>CORS Unblock</strong> browser extension:</p>
+      <p><a href="https://chrome.google.com/webstore/detail/cors-unblock/lfhmikememgdcahcdlaciloancbhjino" target="_blank" class="btn btn-primary">Install CORS Unblock</a></p>
+      <p>After installation, please refresh this page and try again.</p>
+      <div class="info-box">
+        <h4>?? Installation Steps</h4>
+        <ol>
+          <li>Click the link above to go to Chrome Web Store</li>
+          <li>Click "Add to Chrome" button</li>
+          <li>Confirm the extension installation</li>
+          <li>Refresh this page</li>
+          <li>Try scanning the website again</li>
+        </ol>
+      </div>
+    </div>
+  `;
+	}
+
+	// Bootstrap 3 modal handles everything automatically
+
+</script>
