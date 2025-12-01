@@ -10,7 +10,15 @@ const app = express();
 const PORT = process.env.PORT || 8080;
 
 // Enable CORS for all origins (configure this for production later)
-app.use(cors());
+// CORS configuration - allow frontend from Vercel
+app.use(cors({
+  origin: [
+    'http://localhost:3000',
+    'https://ada-scanner-do.vercel.app',
+    /\.vercel\.app$/ // Allow all Vercel preview deployments
+  ],
+  credentials: true
+}));
 app.use(express.json());
 
 app.get('/', (req, res) => {
@@ -60,9 +68,9 @@ app.post('/scan', async (req, res) => {
 
   } catch (error) {
     console.error('Scan failed:', error);
-    res.status(500).json({ 
-      error: 'Scan failed', 
-      details: error.message 
+    res.status(500).json({
+      error: 'Scan failed',
+      details: error.message
     });
   } finally {
     if (browser) {
