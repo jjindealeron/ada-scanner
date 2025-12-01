@@ -96,15 +96,7 @@ export default function Home() {
             </div>
 
             <div className="pageWrapper">
-                <div className="alert alert-info margin-bottom-x">
-                    <h4>Before Using This Tool</h4>
-                    <p>You need to install the <strong>CORS Unblock</strong> browser extension to use this tool.</p>
-                    <p><a className="btn btn-info" href="https://chrome.google.com/webstore/detail/cors-unblock/lfhmikememgdcahcdlaciloancbhjino" target="_blank">Install from Chrome Web Store</a></p>
-                    <p>After installation, please refresh this page and try again.</p>
-                    <p style={{ marginTop: '10px', fontStyle: 'italic', fontSize: '0.9em' }}>
-                        (Note: Since this version uses a backend scanner, you actually <strong>don't</strong> need this extension, but the UI is preserved as requested.)
-                    </p>
-                </div>
+
 
                 <div id="result">
                     {loading && (
