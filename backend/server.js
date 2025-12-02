@@ -11,15 +11,9 @@ const PORT = process.env.PORT || 8080;
 
 // Enable CORS for all origins (configure this for production later)
 // CORS configuration - allow frontend from Vercel
+// TEMPORARY: Allow all origins for testing
 app.use(cors({
-  origin: [
-    'http://localhost:3000',
-    'http://localhost:8080', // Self
-    'https://ada-scanner-do.vercel.app',
-    /\.vercel\.app$/, // Allow all Vercel preview deployments
-    /\.lovable\.app$/, // Allow Lovable deployments
-    /\.gptengineer\.app$/ // Allow GPT Engineer deployments
-  ],
+  origin: true, // Allow all origins temporarily
   credentials: true
 }));
 app.use(express.json());
