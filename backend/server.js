@@ -14,8 +14,11 @@ const PORT = process.env.PORT || 8080;
 app.use(cors({
   origin: [
     'http://localhost:3000',
+    'http://localhost:8080', // Self
     'https://ada-scanner-do.vercel.app',
-    /\.vercel\.app$/ // Allow all Vercel preview deployments
+    /\.vercel\.app$/, // Allow all Vercel preview deployments
+    /\.lovable\.app$/, // Allow Lovable deployments
+    /\.gptengineer\.app$/ // Allow GPT Engineer deployments
   ],
   credentials: true
 }));
