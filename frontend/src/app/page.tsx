@@ -26,17 +26,49 @@ export default function Home() {
         setScanDate(null);
 
         try {
-            const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/scan`, { url });
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://ada-scanner-do.onrender.com';
+            console.log('API URL:', apiUrl);
+            console.log('Scanning URL:', url);
 
-            if (response.data.violations) {
-                setResults(response.data.violations);
+            const response = await axios.post(`${apiUrl}/scan`, { url }, {
+                timeout: 120000 // 2 minutes timeout
+            });
+
+            const violations = response.data.violations || [];
+            const incomplete = response.data.incomplete || [];
+
+            if (violations.length > 0 || incomplete.length > 0) {
+                // Merge violations and incomplete items
+                // We can optionally tag incomplete items if needed, but for now just showing them is key
+                setResults([...violations, ...incomplete]);
                 setScanDate(new Date().toLocaleString());
             } else {
                 setResults([]);
             }
         } catch (err: any) {
             console.error('Scan error:', err);
-            setError(err.response?.data?.error || err.message || 'An error occurred during the scan');
+            console.error('Error details:', {
+                message: err.message,
+                response: err.response?.data,
+                status: err.response?.status,
+                code: err.code
+            });
+
+            let errorMessage = 'Failed to scan website. Please check the URL and try again.';
+
+            if (err.code === 'ECONNABORTED') {
+                errorMessage = 'Request timed out. The website may be taking too long to load.';
+            } else if (err.response?.status === 500) {
+                errorMessage = `Server error: ${err.response?.data?.details || err.response?.data?.error || 'Internal server error'}`;
+            } else if (err.response?.status === 400) {
+                errorMessage = `Invalid request: ${err.response?.data?.error || 'Bad request'}`;
+            } else if (err.response?.data?.error) {
+                errorMessage = err.response.data.error;
+            } else if (err.message) {
+                errorMessage = err.message;
+            }
+
+            setError(errorMessage);
         } finally {
             setLoading(false);
         }
